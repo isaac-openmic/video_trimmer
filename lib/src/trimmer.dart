@@ -350,13 +350,19 @@ class Trimmer {
       await videoPlayerController!.pause();
       return false;
     } else {
-      if (videoPlayerController!.value.position.inMilliseconds >=
-          endValue.toInt()) {
+      // OpenMic fork: use position once and seek to trim start when before range so playback starts in range.
+      final positionMs = videoPlayerController!.value.position.inMilliseconds;
+      if (positionMs >= endValue.toInt()) {
         await videoPlayerController!
             .seekTo(Duration(milliseconds: startValue.toInt()));
         await videoPlayerController!.play();
         return true;
       } else {
+        // OpenMic fork: when position is before trim start, seek to start so playback begins in range.
+        if (positionMs < startValue.toInt()) {
+          await videoPlayerController!
+              .seekTo(Duration(milliseconds: startValue.toInt()));
+        }
         await videoPlayerController!.play();
         return true;
       }

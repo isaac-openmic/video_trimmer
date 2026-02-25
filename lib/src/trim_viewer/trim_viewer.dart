@@ -167,6 +167,11 @@ class TrimViewer extends StatefulWidget {
   /// * [onThumbnailLoadingComplete] is a callback for thumbnail loader to
   /// know when all the thumbnails are loaded.
   ///
+  /// OpenMic fork: optional initial trim range in milliseconds. When set, the trimmer
+  /// shows this range instead of full video (e.g. to restore a saved trim).
+  final double? initialStartValue;
+  final double? initialEndValue;
+
   const TrimViewer({
     super.key,
     required this.trimmer,
@@ -184,6 +189,8 @@ class TrimViewer extends StatefulWidget {
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const TrimAreaProperties(),
     this.onThumbnailLoadingComplete,
+    this.initialStartValue,
+    this.initialEndValue,
   });
 
   @override
@@ -239,6 +246,9 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
           widget.onThumbnailLoadingComplete!();
         }
       },
+      // OpenMic fork: pass initial trim range to child viewer.
+      initialStartValue: widget.initialStartValue,
+      initialEndValue: widget.initialEndValue,
     );
 
     final fixedTrimViewer = FixedTrimViewer(
@@ -263,6 +273,9 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
           widget.onThumbnailLoadingComplete!();
         }
       },
+      // OpenMic fork: pass initial trim range to child viewer.
+      initialStartValue: widget.initialStartValue,
+      initialEndValue: widget.initialEndValue,
     );
 
     return _isScrollableAllowed == null

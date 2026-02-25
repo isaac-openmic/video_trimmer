@@ -23,6 +23,7 @@
 * Supports two types of trim viewer, fixed length and scrollable.
 * Video playback control.
 * Retrieving and storing video file.
+* _(This fork)_ Optional initial trim range: pass `initialStartValue`/`initialEndValue` (ms) to show a saved range when returning to the step; playback starts within the selected range.
 
 Also, supports conversion to **GIF**.
 

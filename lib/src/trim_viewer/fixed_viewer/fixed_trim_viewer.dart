@@ -68,6 +68,11 @@ class FixedTrimViewer extends StatefulWidget {
 
   final VoidCallback onThumbnailLoadingComplete;
 
+  /// OpenMic fork: optional initial trim range in milliseconds. When set, the trimmer
+  /// shows this range instead of full video (e.g. to restore a saved trim).
+  final double? initialStartValue;
+  final double? initialEndValue;
+
   /// Widget for displaying the video trimmer.
   ///
   /// This has frame wise preview of the video with a
@@ -127,6 +132,8 @@ class FixedTrimViewer extends StatefulWidget {
     this.onChangePlaybackState,
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const FixedTrimAreaProperties(),
+    this.initialStartValue,
+    this.initialEndValue,
   });
 
   @override
@@ -228,16 +235,34 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
           maxLengthPixels = _thumbnailViewerW;
         }
 
-        _videoEndPos = fraction != null
+        final double maxEndMs = fraction != null
             ? _videoDuration.toDouble() * fraction!
             : _videoDuration.toDouble();
 
-        widget.onChangeEnd!(_videoEndPos);
-
-        _endPos = Offset(
-          maxLengthPixels != null ? maxLengthPixels! : _thumbnailViewerW,
-          _thumbnailViewerH,
-        );
+        // OpenMic fork: optional initial trim range so handles show saved range when returning to preview.
+        if (widget.initialStartValue != null &&
+            widget.initialEndValue != null) {
+          final startMs =
+              widget.initialStartValue!.clamp(0.0, _videoDuration.toDouble());
+          final endMs = widget.initialEndValue!.clamp(startMs, maxEndMs);
+          _videoStartPos = startMs;
+          _videoEndPos = endMs;
+          _startFraction = _videoDuration > 0 ? startMs / _videoDuration : 0.0;
+          _endFraction = _videoDuration > 0 ? endMs / _videoDuration : 1.0;
+          // OpenMic fork: use _thumbnailViewerW so position matches drag handlers (_startPos.dx / _thumbnailViewerW).
+          _startPos = Offset(_thumbnailViewerW * _startFraction, 0);
+          _endPos = Offset(_thumbnailViewerW * _endFraction, _thumbnailViewerH);
+          if (widget.onChangeStart != null)
+            widget.onChangeStart!(_videoStartPos);
+          if (widget.onChangeEnd != null) widget.onChangeEnd!(_videoEndPos);
+        } else {
+          _videoEndPos = maxEndMs;
+          widget.onChangeEnd!(_videoEndPos);
+          _endPos = Offset(
+            maxLengthPixels != null ? maxLengthPixels! : _thumbnailViewerW,
+            _thumbnailViewerH,
+          );
+        }
 
         // Defining the tween points
         _linearTween = Tween(begin: _startPos.dx, end: _endPos.dx);

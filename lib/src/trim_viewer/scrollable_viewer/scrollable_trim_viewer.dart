@@ -75,6 +75,10 @@ class ScrollableTrimViewer extends StatefulWidget {
 
   final VoidCallback onThumbnailLoadingComplete;
 
+  /// OpenMic fork: optional initial trim range in milliseconds (API parity only; scrollable viewer does not apply them).
+  final double? initialStartValue;
+  final double? initialEndValue;
+
   /// Widget for displaying the video trimmer.
   ///
   /// This has frame wise preview of the video with a
@@ -134,6 +138,8 @@ class ScrollableTrimViewer extends StatefulWidget {
     this.paddingFraction = 0.2,
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const TrimAreaProperties(),
+    this.initialStartValue,
+    this.initialEndValue,
   });
 
   @override
